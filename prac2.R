@@ -49,3 +49,49 @@ varUsed(rf)
 partialPlot(rf, train, MSTV, "2")#partial plot
 getTree(rf, 1, labelVar = TRUE)
 MDSplot(rf, train$NSP)
+#task2
+install.packages(c("randomForest","caret"))#installing packages
+library(randomForest)
+library(caret)
+Data <- read.csv("C:/Users/201807729/Documents/Practical 2/Data/Task 2/sample_data.csv")
+View(Data)
+str(Data)
+ind <- sample (2, nrow (Data), replace = TRUE , prob = c (0.7, 0.3))
+training_data = Data[ind==1,]
+testing_data = Data[ind==2,]
+rf = randomForest (Salinity~., data=training_data)
+plot(rf)
+Salinity_Predict = predict(rf, testing_data)#predicting the values
+testing_data$Salinity_Predict = Salinity_Predict
+View(testing_data)
+cfm = table(testing_data$Salinity, testing_data$Salinity_Predict)
+cfm
+classification_Accuracy = sum(diag(cfm)/sum(cfm))
+classification_Accuracy
+#part2
+install.packages(c("stars","raster","ggplot2","sf","ExtractTrainData"))#instaliing packages
+library(stars)
+library(raster)
+library(ggplot2)
+library(sf)
+library(ExtractTrainData)
+image_BBS<-stack ("C:/Users/201807729/Documents/Practical 2/Data/Task 2/RGB.tif")#reading the image
+image_BBS
+plotRGB (image_BBS,3,2,1, scale =255, stretch='lin')
+i<-0
+for (i in seq (1,3,1)){
+  fname = paste ("layer_",i,".tif",sep="")
+  layers <- image_BBS [[i]]
+  writeRaster( layers, fname,
+               format = "GTiff", datatype='FLT4', overwrite =TRUE)
+}
+Layer_1<-raster("layer_1.tif")
+Layer_2<-raster("layer_2.tif")
+Layer_3<-raster("layer_3.tif")
+data1<-stack(Layer_1,Layer_2,Layer_3)
+data1
+plotRGB (image_BBS,3,2,1, scale =255, stretch='lin')
+features<-st_read("C:/Users/201807729/Documents/Practical 2/Data/Task 2/Shapefile/Super_training data.shp" )
+features
+plot(features)
+str(features)
